@@ -41,6 +41,35 @@ def addGosperGliderGun(i, j, grid):
 
     grid[i:i+11, j:j+38] = gun
 
+def addGosperGun(i, j, grid):
+    gun = np.zeros(11*38).reshape(11, 38)
+    gun[5, 1] = gun[6, 1] = gun[5, 2] = gun[6, 2] = 255
+    gun[5, 11] = gun[6, 11] = gun[7, 11] = 255
+    gun[4, 12] = gun[8, 12] = 255
+    gun[3, 13] = gun[9, 13] = 255
+    gun[3, 14] = gun[9, 14] = 255
+    gun[6, 15] = 255
+    gun[4, 16] = gun[8, 16] = 255
+    gun[5, 17] = gun[6, 17] = gun[7, 17] = 255
+    gun[6, 18] = 255
+    gun[3, 21] = gun[4, 21] = gun[5, 21] = 255
+    gun[3, 22] = gun[4, 22] = gun[5, 22] = 255
+    gun[2, 23] = gun[6, 23] = 255
+    gun[1, 25] = gun[2, 25] = gun[6, 25] = gun[7, 25] = 255
+    gun[3, 35] = gun[4, 35] = gun[3, 36] = gun[4, 36] = 255
+    grid[i:i+11, j:j+38] = gun
+
+def readPattern(filename):
+    with open(filename, 'rt') as f:
+        n = int(f.readline().strip())
+        lines = f.readlines()
+        l = []
+        for line in lines:
+            l.append([int(num)*255 for num in line.strip().split()])
+        grid = np.array(l)
+    return n, grid
+
+
 def update(frame, img, grid, N):
     newGrid = grid.copy()
     for i in range(N):
@@ -63,23 +92,30 @@ def main():
     parser.add_argument('--interval', dest='interval', required=False)
     parser.add_argument('--glider', action='store_true', required=False)
     parser.add_argument('--gosper', action='store_true', required=False)
+    parser.add_argument('--gosperGun', action='store_true', required=False)
+    parser.add_argument('--pattern-file', dest='filename', required=False)
     args = parser.parse_args()
 
     N = 100
     if args.N and int(args.N) > 8:
         N = int(args.N)
 
-    updateInterval = 50
+    updateInterval = 10
     if args.interval:
         updateInterval = int(args.interval)
     
     grid = np.array([])
-    if args.glider:
+    if args.filename:
+        N, grid = readPattern(args.filename)
+    elif args.glider:
         grid = np.zeros(N*N).reshape(N, N)
         addGlider(1, 1, grid)
     elif args.gosper:
         grid = np.zeros(N*N).reshape(N, N)
         addGosperGliderGun(10, 10, grid)
+    elif args.gosperGun:
+        grid = np.zeros(N*N).reshape(N, N)
+        addGosperGun(30, 30, grid)
     else:
         grid = randomGrid(N)
 
